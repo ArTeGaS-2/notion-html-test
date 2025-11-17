@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Unity – Build Settings, Mono, IL2CPP, Dev/Release</title>
+  <style>
+    body {
+      background: #0b0c10;
+      color: #f5f5f5;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h3 {
+      margin-top: 1.8em;
+      margin-bottom: 0.4em;
+      color: #ffd166;
+    }
+
+    p {
+      margin: 0.3em 0 0.8em;
+    }
+
+    .term-unity { color: #4dabf7; font-weight: 600; }
+
+    .term-build       { color: #ffa94d; font-weight: 600; }
+    .term-scenes      { color: #20c997; font-weight: 600; }
+    .term-target      { color: #f76707; font-weight: 600; }
+
+    .term-platform-win     { color: #74c0fc; font-weight: 600; }
+    .term-platform-android { color: #69db7c; font-weight: 600; }
+
+    .term-ext-exe { color: #fcc419; font-weight: 600; }
+    .term-ext-apk { color: #22b8cf; font-weight: 600; }
+    .term-ext-aab { color: #94d82d; font-weight: 600; }
+
+    .term-mono   { color: #ff922b; font-weight: 600; }
+    .term-il2cpp { color: #d0bfff; font-weight: 600; }
+
+    .term-dev      { color: #8ce99a; font-weight: 600; }
+    .term-release  { color: #b197fc; font-weight: 600; }
+    .term-devbuild { color: #ff6b6b; font-weight: 600; }
+
+    .term-tool { color: #fd7e14; font-weight: 600; }
+
+    a { color: #74c0fc; text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <h3>Дві «реальності» гри</h3>
+
+  <p>
+    <strong>У <span class="term-unity">Unity</span> є дві «реальності» твоєї гри.</strong>
+    Перша – це проєкт у редакторі: сцени, префаби, скрипти, інспектор.
+    Друга – це зібрана гра, яку можна запустити без
+    <span class="term-unity">Unity</span>:
+    <span class="term-ext-exe">.exe</span> на
+    <span class="term-platform-win">Windows</span> або
+    <span class="term-ext-apk">.apk</span>/<span class="term-ext-aab">.aab</span> на
+    <span class="term-platform-android">Android</span>.
+    Процес переходу від першої до другої називається побудова (build),
+    а основне місце керування цим процесом – вікно
+    <strong><span class="term-build">Build Settings</span></strong>.
+  </p>
+
+  <h3>Вибір платформи та Scenes in Build</h3>
+
+  <p>
+    У <strong><span class="term-build">Build Settings</span></strong> ти обираєш платформу,
+    для якої зараз збираєш гру.
+    Для <span class="term-platform-win">Windows</span> це зазвичай PC, Mac &amp; Linux Standalone
+    з <strong><span class="term-target">Target Platform</span> = <span class="term-platform-win">Windows</span></strong>,
+    для мобільних – <strong><span class="term-platform-android">Android</span></strong>.
+    <span class="term-unity">Unity</span> бере твій проєкт, компілює скрипти, пакує сцени й ресурси у формат,
+    який вміє запускати вибрана платформа. Важливий момент – список
+    <strong><span class="term-scenes">Scenes in Build</span></strong>:
+    лише ті сцени, що додані туди, потраплять у фінальну гру.
+    Саме з першої сцени в цьому списку стартує проєкт після запуску
+    <span class="term-ext-exe">.exe</span> або встановлення
+    <span class="term-ext-apk">.apk</span>.
+  </p>
+
+  <h3>Бекенди скриптів: Mono vs IL2CPP</h3>
+
+  <p>
+    Окремий шар цієї теми – як саме <span class="term-unity">Unity</span> компілює C#-скрипти.
+    Для цього є два варіанти: <strong><span class="term-mono">Mono</span></strong> і
+    <strong><span class="term-il2cpp">IL2CPP</span></strong>.
+    Їх можна сприймати як два різних «двигуни» для твого C# коду.
+    <strong><span class="term-mono">Mono</span></strong> – це інтерпретатор/віртуальна машина:
+    C# код компілюється у проміжний байт-код, а вже під час запуску гри
+    він додатково перекладається в машинні інструкції. Плюс
+    <strong><span class="term-mono">Mono</span></strong> у тому, що він швидко збирається:
+    <span class="term-dev">Dev</span>-білди на ньому робляться помітно швидше,
+    простіше дебажити, швидко тестувати зміни.
+    Мінус – дещо гірша продуктивність і безпека порівняно з
+    <strong><span class="term-il2cpp">IL2CPP</span></strong>, особливо на мобільних платформах.
+  </p>
+
+  <h3>IL2CPP для релізів, Mono для швидких збірок</h3>
+
+  <p>
+    <strong><span class="term-il2cpp">IL2CPP</span></strong> працює інакше:
+    при побудові він перетворює весь твій C# код спочатку в C++, а потім
+    у «рідний» машинний код платформи. Це займає більше часу на етапі збірки,
+    але натомість дає кращу швидкодію і зазвичай менше проблем на реальних пристроях.
+    Для серйозних <span class="term-platform-android">Android</span>-релізів зараз це фактично стандарт:
+    гра працює швидше, складніше «розібрати» код, менше сюрпризів з різними моделями телефонів.
+    Для навчальних і внутрішніх збірок на
+    <span class="term-platform-win">Windows</span> часто використовують
+    <strong><span class="term-mono">Mono</span></strong>, щоб не чекати довгі білди,
+    а ближче до фіналу перемикаються на
+    <strong><span class="term-il2cpp">IL2CPP</span></strong> і проганяють уже релізну збірку.
+  </p>
+
+  <h3>Development Build vs Release</h3>
+
+  <p>
+    Ще один важливий перемикач у
+    <strong><span class="term-build">Build Settings</span></strong> – це галочка
+    <strong><span class="term-devbuild">Development Build</span></strong>.
+    Вона відрізняє умовний «<span class="term-dev">Dev</span>» від
+    «<span class="term-release">Release</span>».
+    <strong><span class="term-devbuild">Development Build</span></strong> додає в гру додаткову
+    налагоджувальну інформацію: розширені логи, можливість підключити
+    <span class="term-tool">Profiler</span>, <span class="term-tool">Script Debugging</span>,
+    іноді вмикаються різні перевірки, які допомагають знаходити помилки.
+    Такі збірки зручні для тестів на власному ПК чи телефоні, але вони зазвичай працюють
+    трохи повільніше і можуть важити більше.
+    <strong><span class="term-release">Release</span>-білд</strong> – це те, що отримує гравець:
+    галочка <strong><span class="term-devbuild">Development Build</span></strong> знята,
+    дебаг-інформація та зайві перевірки вимкнені, логи мінімізовані, часто
+    використовується сильніше стиснення ресурсів.
+    Ідея проста: поки ти ще активно змінюєш код і шукаєш баги – збираєш
+    <span class="term-dev">Dev</span>; коли готуєшся викладати гру на
+    <a href="https://itch.io" target="_blank" rel="noreferrer">itch.io</a>,
+    Google Play чи просто віддавати друзям – робиш
+    <span class="term-release">Release</span>.
+  </p>
+
+  <h3>Результат побудови: Windows і Android</h3>
+
+  <p>
+    Для <span class="term-platform-win">Windows</span> результатом побудови
+    стає папка з <span class="term-ext-exe">.exe</span> файлом і підпапкою
+    з усіма даними гри. Користувач просто запускає
+    <span class="term-ext-exe">.exe</span> і грає –
+    <span class="term-unity">Unity</span> йому вже не потрібна.
+    Для <span class="term-platform-android">Android</span> результат –
+    <span class="term-ext-apk">.apk</span> або
+    <span class="term-ext-aab">.aab</span>.
+    <span class="term-ext-apk">.apk</span> можна одразу встановити на телефон,
+    підключений по USB, або відправити комусь.
+    <span class="term-ext-aab">.aab</span> частіше використовується для публікації
+    в Google Play.
+    У всіх випадках логіка одна: ти один раз налаштовуєш
+    <strong><span class="term-build">Build Settings</span></strong>,
+    обираєш потрібний бекенд скриптів
+    (<strong><span class="term-mono">Mono</span></strong> чи
+    <strong><span class="term-il2cpp">IL2CPP</span></strong>)
+    і тип білда (<span class="term-dev">Dev</span>/<span class="term-release">Release</span>),
+    а далі <span class="term-unity">Unity</span> сама перетворює твій універсальний C# код
+    і сцени в формат, який розуміє конкретна платформа.
+  </p>
+
+</body>
+</html>
